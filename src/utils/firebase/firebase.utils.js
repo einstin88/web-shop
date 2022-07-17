@@ -9,7 +9,16 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  writeBatch,
+  collection,
+  query,
+  getDocs,
+} from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -42,7 +51,11 @@ export function signInWithGoogleRedirect() {
 }
 
 // Point to firestore
-export const db = getFirestore();
+const db = getFirestore(firebaseApp);
+
+/*============================================================
+Section: Handle calls for user obj's -> auth's & firestore(db) 
+ ============================================================*/
 
 // Create/Auth user to access Firebase
 export const createUserDocumentFromAuth = async (userAuth, additional = {}) => {
@@ -50,6 +63,7 @@ export const createUserDocumentFromAuth = async (userAuth, additional = {}) => {
   if (!userAuth) return;
 
   // Generate a pointer of the user to the db -> collections
+  // https://firebase.google.com/docs/reference/js/firestore_.md#doc
   const userDocRef = doc(db, "users", userAuth.uid);
 
   // Fetch data from db. Check response if the Doc (ie. User) exists on the db.
@@ -78,16 +92,14 @@ export const createUserDocumentFromAuth = async (userAuth, additional = {}) => {
 export function createAuthUserWithEmailAndPassword(email, password) {
   if (!email || !password) return;
 
-  //return console.log(email, password);
   return createUserWithEmailAndPassword(auth, email, password);
-};
+}
 
 export function signInAuthUserWithEmailAndPassword(email, password) {
   if (!email || !password) return;
 
-  //return console.log(email, password);
   return signInWithEmailAndPassword(auth, email, password);
-};
+}
 
 export function signOutUser() {
   return signOut(auth);
@@ -95,4 +107,46 @@ export function signOutUser() {
 
 export function onAuthStateChangedListerner(callback) {
   return onAuthStateChanged(auth, callback);
+}
+
+/*============================================================
+Section: Handle calls for shop/products data 
+ ============================================================*/
+// Function to add data to firestore collection
+export async function addCollectionsAndDocuments(dataToAdd) {
+  // API function to write data in a batch
+  const batch = writeBatch(db);
+  // Pointer to tell Firestore where to write the data
+  const collectionRef = collection(db, "categories");
+
+  // Shop data is a list of multiple 'category' objects
+  dataToAdd.forEach((element) => {
+    const docRef = doc(collectionRef, element.title.toLowerCase());
+    // Adds data of each category to the batch
+    batch.set(docRef, element);
+  });
+
+  try {
+    // Writes on db
+    await batch.commit();
+    console.log("Done writing data to firestore");
+  } catch (error) {
+    console.log("Error writing to firestore:", error);
+  }
+}
+
+// Get multiple docs with one request
+export async function getCategoriesAndDocuments() {
+  const collectionRef = collection(db, "categories");
+  const q = query(collectionRef);
+
+  const querySnapshot = await getDocs(q);
+
+  const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+    const { title, items } = docSnapshot.data();
+    acc[title.toLowerCase()] = items;
+    return acc;
+  }, {});
+
+  return categoryMap;
 }
