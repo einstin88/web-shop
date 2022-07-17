@@ -5,7 +5,7 @@ import { CategoriesContext } from "../../contexts/categories.context";
 
 import ProductCard from "../../components/products-card/products-card.component";
 
-import "./category.styles.scss";
+import { CategoryContainer, CategoryTitle } from "./category.styles";
 
 function Category() {
   const { category } = useParams();
@@ -18,15 +18,17 @@ function Category() {
 
   return (
     <Fragment>
-      <h2 className="category-title">{category.toUpperCase()}</h2>
-      <div className="category-container">
-        
-        {// This hack is needed because categoriesMap is empty initially when the component is mounted. 
-        //Will be fixed when using local storage with redux
-        products && products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      <CategoryTitle>{category.toUpperCase()}</CategoryTitle>
+      <CategoryContainer>
+        {
+          // This hack is needed because categoriesMap is empty initially when the component is mounted.
+          //Will be fixed when using local storage with redux
+          products &&
+            products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+        }
+      </CategoryContainer>
     </Fragment>
   );
 }
