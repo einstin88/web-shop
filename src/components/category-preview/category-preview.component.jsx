@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 import ProductCard from "../products-card/products-card.component";
 
 import {
