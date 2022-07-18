@@ -15,7 +15,7 @@ const INITIAL_STATE = {
   currentUser: null,
 };
 
-export const USER_ACTIONS = {
+const USER_ACTIONS = {
   SET_CURRENT_USER: "SET_CURRENT_USER",
 };
 
@@ -24,9 +24,9 @@ function UserReducer(state, action) {
 
   switch (type) {
     case USER_ACTIONS.SET_CURRENT_USER:
-      return { 
-        ...state, 
-        currentUser: payload 
+      return {
+        ...state,
+        currentUser: payload,
       };
     default:
       throw new Error(`Unhandled type ${type} in userReducer`);
@@ -40,18 +40,18 @@ export function UserProvider({ children }) {
   const setCurrentUser = (user) =>
     dispatch(createAction(USER_ACTIONS.SET_CURRENT_USER, user));
 
-  const value = { currentUser, };
-
   useEffect(() => {
     const unSubscribe = onAuthStateChangedListerner((user) => {
       if (user) {
         createUserDocumentFromAuth(user);
       }
-      setCurrentUser(user);
+      dispatch(setCurrentUser(user));
     });
 
     return unSubscribe;
   }, []);
+
+  const value = { currentUser };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
