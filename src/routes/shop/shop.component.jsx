@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useDispatch } from 'react-redux'
+import { useDispatch } from "react-redux";
 import { Route, Routes } from "react-router-dom";
 
 import { getCategoriesAndDocuments } from "../../utils/firebase/firebase.utils";
@@ -13,13 +13,13 @@ function Shop() {
 
   useEffect(() => {
     const getCategoriesMap = async () => {
-      const categoryMap = await getCategoriesAndDocuments();
-      dispatch(setCategoriesMap(categoryMap))
+      const categories = await getCategoriesAndDocuments('categories');
+      dispatch(setCategoriesMap(categories));
     };
     getCategoriesMap();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <Routes>
       <Route index element={<CategoriesPreview />} />
