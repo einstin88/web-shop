@@ -1,15 +1,18 @@
-import { useContext } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-import { CartContext } from "../../contexts/cart.context";
+import { setCartOpen } from "../../store/cart/cart.action";
+import { selectCartCount, selectCartOpen } from "../../store/cart/cart.selector";
 
 import { ShoppingIcon, CartIconContainer, ItemCount } from "./cart-icon.styles";
 
 function CartIcon() {
   // For display on nav-bar
   // Handles logic for counting item in cart & displaying dropdown
-  const { cartCount, cartOpen, setCartOpen } = useContext(CartContext);
+  const dispatch = useDispatch();
+  const cartCount = useSelector(selectCartCount);
+  const cartOpen = useSelector(selectCartOpen);
 
-  const toggleCartDropdown = () => setCartOpen(!cartOpen);
+  const toggleCartDropdown = () => dispatch(setCartOpen(!cartOpen));
 
   return (
     <CartIconContainer onClick={toggleCartDropdown}>
